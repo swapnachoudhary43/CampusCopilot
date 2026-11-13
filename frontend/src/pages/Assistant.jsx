@@ -130,7 +130,7 @@ export default function Assistant() {
                   <div className="mt-3 grid gap-2">
                     {message.sources.map((source) => (
                       <div key={`${source.document_id}-${source.page_number}`} className="rounded-xl border border-slate-200 bg-white p-3 text-slate-700">
-                        <p className="text-xs font-semibold text-slate-900">{source.document_title} · page {source.page_number} · similarity {source.score}</p>
+                        <p className="text-xs font-semibold text-slate-900">{source.document_title} · page {source.page_number} · {source.retrieval_method === "hybrid" ? "hybrid retrieval" : "semantic retrieval"}{source.score > 0 ? ` · semantic score {source.score}` : " · keyword match"}</p>
                         <p className="mt-1 text-xs">{source.excerpt}</p>
                       </div>
                     ))}
