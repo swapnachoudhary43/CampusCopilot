@@ -92,13 +92,17 @@ def answer_question(db: Session, question: str, history: list[dict] | None = Non
         try:
             answer = generate_with_gemini(prompt)
         except Exception as exc:
+            # Gemini outages must not turn a usable retrieval result into a
+            # failed chat. Show clearly labelled source excerpts instead.
             return {
                 **base,
-                "answer": (
-                    "The language model could not be reached, so no generated answer was produced. "
-                    f"{exc} The retrieved passages are shown below and were not rewritten."
+                "answer": quote_retrieved_passages(
+                    sources,
+                    "Gemini is temporarily unavailable, so CampusCopilot could not generate a summary. "
+                    "Here are the retrieved source passages. Please verify the cited document and page; "
+                    "these excerpts are not a generated answer.",
                 ),
-                "answer_mode": "llm_unavailable",
+                "answer_mode": "gemini_fallback",
                 "llm_error": str(exc),
             }
         return {**base, "answer": answer, "answer_mode": "gemini"}
