@@ -1,8 +1,10 @@
 """Build a grounded prompt and call Gemini when it is configured.
 
-This module never invents an answer if the model call fails. The caller
-decides whether to quote retrieved passages instead.
+Transient Gemini capacity/rate-limit errors are retried briefly. The caller
+falls back to retrieved passages if the service remains unavailable.
 """
+
+import time
 
 from app.core.config import get_settings
 
@@ -25,6 +27,10 @@ def build_prompt(question: str, sources: list[dict], history: list[dict] | None 
         "If the context does not contain the answer, say that the uploaded documents "
         "do not contain enough information. Do not invent rules, dates, fees, or policies.\n"
         "When you use a fact, mention the document title and page number.\n"
+        "If the question names a specific ordinance or document, answer from that named "
+        "document only. Never transfer a rule or percentage from a different ordinance. "
+        "If the named document does not establish the requested fact in the supplied excerpts, "
+        "say so clearly.\n"
         "Earlier chat messages are only for understanding follow-up questions. "
         "They are not a source of university rules.\n"
         "Write in clear, simple English.\n\n"
@@ -35,10 +41,7 @@ def build_prompt(question: str, sources: list[dict], history: list[dict] | None 
 
 
 def quote_retrieved_passages(sources: list[dict], reason: str) -> str:
-    lines = [
-        reason,
-        "",
-    ]
+    lines = [reason, ""]
     for index, source in enumerate(sources, start=1):
         lines.append(
             f"[{index}] {source['document_title']}, page {source['page_number']} "
@@ -46,8 +49,30 @@ def quote_retrieved_passages(sources: list[dict], reason: str) -> str:
         )
         lines.append(f"\"{source['excerpt']}\"")
         lines.append("")
-    lines.append("These passages were copied from the indexed documents. They were not rewritten by a language model.")
+    lines.append(
+        "These passages were copied from the indexed documents. "
+        "They were not rewritten by a language model."
+    )
     return "\n".join(lines).strip()
+
+
+def _is_transient_gemini_error(exc: Exception) -> bool:
+    """Recognise temporary overload, rate-limit, and gateway failures."""
+    status = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+    try:
+        if int(status) in {429, 500, 502, 503, 504}:
+            return True
+    except (TypeError, ValueError):
+        pass
+    message = str(exc).lower()
+    return any(
+        marker in message
+        for marker in (
+            "429", "500", "502", "503", "504",
+            "resource_exhausted", "service unavailable",
+            "temporarily unavailable", "high demand",
+        )
+    )
 
 
 def generate_with_gemini(prompt: str) -> str:
@@ -58,15 +83,25 @@ def generate_with_gemini(prompt: str) -> str:
         from google import genai
     except ImportError as exc:
         raise RuntimeError("The google-genai package is not installed.") from exc
-    try:
-        client = genai.Client(api_key=settings.gemini_api_key)
-        response = client.models.generate_content(
-            model=settings.gemini_model,
-            contents=prompt,
-        )
-    except Exception as exc:
-        raise RuntimeError(f"Gemini request failed: {exc}") from exc
-    text = getattr(response, "text", None)
-    if not text or not str(text).strip():
-        raise RuntimeError("Gemini returned an empty response.")
-    return str(text).strip()
+
+    client = genai.Client(api_key=settings.gemini_api_key)
+    last_error = None
+    # Two short retries help with brief 503/429 spikes without holding a
+    # student's request open for an excessive amount of time.
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model=settings.gemini_model,
+                contents=prompt,
+            )
+            response_text = getattr(response, "text", None)
+            if not response_text or not str(response_text).strip():
+                raise RuntimeError("Gemini returned an empty response.")
+            return str(response_text).strip()
+        except Exception as exc:
+            last_error = exc
+            if attempt == 2 or not _is_transient_gemini_error(exc):
+                break
+            time.sleep(1.0 * (attempt + 1))
+
+    raise RuntimeError(f"Gemini request failed after retry attempts: {last_error}") from last_error
