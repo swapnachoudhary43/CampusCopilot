@@ -9,13 +9,17 @@ from app.database.session import get_db
 from app.models.entities import User
 from app.routes.serializers import user_out
 from app.schemas.api import LoginRequest, PasswordChange, ProfileUpdate, RegisterRequest, TokenResponse
+from app.core.throttle import login_allowed, record_login_failure, record_login_success
 from app.services.audit import log_action
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 def _token_response(user: User) -> dict:
-    return TokenResponse(access_token=create_access_token(user.id), user=user_out(user)).model_dump()
+    return TokenResponse(
+        access_token=create_access_token(user.id, int(user.token_version or 0)),
+        user=user_out(user),
+    ).model_dump()
 
 
 @router.post("/register", status_code=201)
@@ -41,8 +45,11 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(body: LoginRequest, db: Session = Depends(get_db)):
+    if not login_allowed(body.email):
+        raise HTTPException(status_code=429, detail="Too many login attempts. Wait a few minutes and try again.")
     user = db.query(User).filter(User.email == body.email).first()
     if user is None or not user.is_active or not verify_password(body.password, user.password_hash):
+        record_login_failure(body.email)
         log_action(
             db,
             user_id=None,
@@ -52,6 +59,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         )
         db.commit()
         raise HTTPException(status_code=401, detail="Email or password is incorrect.")
+    record_login_success(body.email)
     log_action(db, user_id=user.id, action="login", entity_type="user", entity_id=str(user.id))
     db.commit()
     return _token_response(user)
@@ -78,6 +86,7 @@ def change_password(body: PasswordChange, user: User = Depends(get_current_user)
     if not verify_password(body.current_password, user.password_hash):
         raise HTTPException(status_code=400, detail="The current password is incorrect.")
     user.password_hash = hash_password(body.new_password)
+    user.token_version = int(user.token_version or 0) + 1
     log_action(db, user_id=user.id, action="password_changed", entity_type="user", entity_id=str(user.id))
     db.commit()
     return {"detail": "Password updated."}

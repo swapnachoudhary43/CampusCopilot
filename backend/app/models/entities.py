@@ -42,6 +42,7 @@ class User(Base):
     department: Mapped[str | None] = mapped_column(String(120), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False)
+    token_version: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     complaints: Mapped[list["Complaint"]] = relationship(
@@ -70,6 +71,10 @@ class Document(Base):
     publication_date: Mapped[str | None] = mapped_column(String(160), nullable=True)
     retrieved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     provenance: Mapped[str] = mapped_column(String(40), default="uploaded")
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    document_type: Mapped[str] = mapped_column(String(40), default="uploaded_pdf")
+    department: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    last_modified: Mapped[str | None] = mapped_column(String(160), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
 
     chunks: Mapped[list["DocumentChunk"]] = relationship(
@@ -260,6 +265,39 @@ class PendingAction(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     conversation: Mapped[Conversation] = relationship(back_populates="pending_actions")
+
+
+class OfficialSite(Base):
+    """A verified official website. External links such as UGC are not stored here."""
+
+    __tablename__ = "official_sites"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(160))
+    url: Mapped[str] = mapped_column(String(300), unique=True)
+    category: Mapped[str] = mapped_column(String(40), default="university")
+    parent: Mapped[str] = mapped_column(String(80), default="DAVV")
+    status: Mapped[str] = mapped_column(String(40), default="discovered", index=True)
+    pages_indexed: Mapped[int] = mapped_column(Integer, default=0)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_crawled: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class CrawlRecord(Base):
+    """One fetch of an official URL. Failed and unchanged fetches stay visible to an admin."""
+
+    __tablename__ = "crawl_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    url: Mapped[str] = mapped_column(String(700), unique=True, index=True)
+    status: Mapped[str] = mapped_column(String(40), index=True)
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    title: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    document_id: Mapped[int | None] = mapped_column(ForeignKey("documents.id"), nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    content_type: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
 
 
 class AuditLog(Base):

@@ -11,12 +11,36 @@ export default function Documents() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [crawl, setCrawl] = useState(null);
+
+  function loadCrawl() {
+    api.get("/api/crawl").then((response) => setCrawl(response.data)).catch(() => setCrawl(null));
+  }
 
   function load() {
     api.get("/api/documents").then((response) => setRows(response.data)).catch((err) => setError(errorMessage(err)));
   }
 
   useEffect(load, []);
+  useEffect(() => {
+    loadCrawl();
+    const timer = setInterval(loadCrawl, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  async function startCrawl() {
+    setBusy(true);
+    setError("");
+    try {
+      await api.post("/api/crawl/start", { max_pages: 70, max_pdfs: 6 });
+      setMessage("Official-site crawl started. This page will show pages as they are indexed.");
+      loadCrawl();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function upload(event) {
     event.preventDefault();
@@ -69,6 +93,34 @@ export default function Documents() {
   return (
     <div>
       <PageHeader title="Document management" subtitle="Text PDFs are indexed. A scanned PDF is stored with the status needs OCR and is not searched." action={<button className="btn-ghost" onClick={reindex} disabled={busy}>Rebuild search index</button>} />
+      <section className="card mb-6 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-semibold">Official website crawl</h2>
+            <p className="text-sm text-slate-600">Indexes public pages from dauniv.ac.in and ietdavv.edu.in. Student questions do not start a crawl.</p>
+          </div>
+          <button className="btn" onClick={startCrawl} disabled={busy || crawl?.run?.running}>Start crawl</button>
+        </div>
+        {crawl?.run?.running ? <p className="mt-2 text-sm text-indigo-700">Crawl in progress.</p> : null}
+        {crawl?.counts ? <p className="mt-2 text-sm text-slate-600">{Object.entries(crawl.counts).map(([status, count]) => `${status}: ${count}`).join(" · ")}</p> : null}
+        <div className="mt-3 grid gap-2 md:grid-cols-2">
+          {(crawl?.sites || []).map((site) => (
+            <p key={site.url} className="text-xs text-slate-600">
+              <span className="font-semibold">{site.name}</span> · {site.status} · {site.pages_indexed} indexed
+              {site.error ? ` · ${site.error}` : ""}
+              <a className="block text-indigo-700" href={site.url} target="_blank" rel="noreferrer">{site.url}</a>
+            </p>
+          ))}
+        </div>
+        <div className="mt-3 space-y-2">
+          {(crawl?.records || []).slice(0, 8).map((record) => (
+            <p key={record.url} className="text-xs text-slate-600">
+              <span className="font-semibold">{record.status}</span> · {record.title || record.url}
+              {record.error ? ` · ${record.error}` : ""}
+            </p>
+          ))}
+        </div>
+      </section>
       {error ? <p className="mb-3 text-sm text-rose-700">{error}</p> : null}
       {message ? <p className="mb-3 text-sm text-emerald-700">{message}</p> : null}
       <form className="card mb-6 grid gap-3 p-5 md:grid-cols-2" onSubmit={upload}>

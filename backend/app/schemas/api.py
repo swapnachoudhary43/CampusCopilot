@@ -131,6 +131,9 @@ class DocumentPublic(ORMModel):
     publication_date: str | None = None
     retrieved_at: datetime | None = None
     provenance: str = "uploaded"
+    document_type: str = "uploaded_pdf"
+    department: str | None = None
+    last_modified: str | None = None
     created_at: datetime
 
 

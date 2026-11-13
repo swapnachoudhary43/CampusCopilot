@@ -69,13 +69,20 @@ def _ensure_columns() -> None:
     if engine.dialect.name != "sqlite":
         return
     additions = {
-        "users": {"is_demo": "BOOLEAN NOT NULL DEFAULT 0"},
+        "users": {
+            "is_demo": "BOOLEAN NOT NULL DEFAULT 0",
+            "token_version": "INTEGER NOT NULL DEFAULT 0",
+        },
         "documents": {
             "source_url": "VARCHAR(500)",
             "source_page_url": "VARCHAR(500)",
             "publication_date": "VARCHAR(160)",
             "retrieved_at": "DATETIME",
             "provenance": "VARCHAR(40) NOT NULL DEFAULT 'uploaded'",
+            "content_hash": "VARCHAR(64)",
+            "document_type": "VARCHAR(40) NOT NULL DEFAULT 'uploaded_pdf'",
+            "department": "VARCHAR(120)",
+            "last_modified": "VARCHAR(160)",
         },
         "complaints": {"is_demo": "BOOLEAN NOT NULL DEFAULT 0"},
         "events": {"is_demo": "BOOLEAN NOT NULL DEFAULT 0"},
@@ -94,6 +101,19 @@ def _ensure_columns() -> None:
             for name, ddl in columns.items():
                 if name not in present:
                     connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
+    if "event_registrations" in existing_tables:
+        try:
+            with engine.begin() as connection:
+                connection.execute(
+                    text(
+                        "CREATE UNIQUE INDEX IF NOT EXISTS uq_event_user "
+                        "ON event_registrations (event_id, user_id)"
+                    )
+                )
+        except Exception:
+            # An existing duplicate pair would make the index fail. The
+            # application still checks duplicates before inserting.
+            return
 
 
 def init_db():

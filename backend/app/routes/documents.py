@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.constants import DOCUMENT_CATEGORIES
+from app.core.config import get_settings
 from app.core.deps import get_current_user, require_roles
 from app.database.session import get_db
 from app.models.entities import Document, User
@@ -45,7 +46,16 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="Unknown document category.")
     if not title.strip():
         raise HTTPException(status_code=400, detail="A document title is required.")
-    payload = await file.read()
+    limit = get_settings().max_upload_mb * 1024 * 1024
+    payload = bytearray()
+    while True:
+        block = await file.read(1024 * 1024)
+        if not block:
+            break
+        if len(payload) + len(block) > limit:
+            raise HTTPException(status_code=413, detail=f"The file is larger than {get_settings().max_upload_mb} MB.")
+        payload.extend(block)
+    payload = bytes(payload)
     try:
         document = store_pdf(
             db,

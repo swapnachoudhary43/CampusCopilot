@@ -9,7 +9,7 @@ from app.models.entities import Event, EventRegistration, User
 from app.routes.serializers import event_out
 from app.schemas.api import EventCreate
 from app.services.audit import log_action
-from app.services.events import EventError, cancel_registration, register_for_event, validate_window
+from app.services.events import EventError, cancel_registration, register_for_event, registered_count, validate_window
 
 router = APIRouter(prefix="/api/events", tags=["events"])
 
@@ -66,6 +66,11 @@ def update_event(
     event.venue = body.venue.strip()
     event.starts_at = body.starts_at
     event.ends_at = body.ends_at
+    if body.capacity < registered_count(db, event.id):
+        raise HTTPException(
+            status_code=409,
+            detail="Capacity cannot be lower than the number of students already registered.",
+        )
     event.capacity = body.capacity
     log_action(db, user_id=actor.id, action="event_updated", entity_type="event", entity_id=str(event.id), details=event.title)
     db.commit()

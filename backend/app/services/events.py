@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.entities import Event, EventRegistration, User
@@ -45,6 +47,9 @@ def validate_window(starts_at: datetime, ends_at: datetime) -> None:
 def register_for_event(db: Session, user: User, event: Event) -> EventRegistration:
     if ensure_aware(event.starts_at) <= utcnow():
         raise EventError("Registration is closed because this event has already started.")
+    # The update takes SQLite's write lock before the capacity count, so two
+    # requests cannot both pass a check against the old count.
+    db.execute(text("UPDATE events SET capacity = capacity WHERE id = :event_id"), {"event_id": event.id})
     existing = (
         db.query(EventRegistration)
         .filter(EventRegistration.event_id == event.id, EventRegistration.user_id == user.id)
@@ -69,7 +74,11 @@ def register_for_event(db: Session, user: User, event: Event) -> EventRegistrati
         entity_id=str(event.id),
         details=event.title,
     )
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise EventError("You are already registered for this event.", 409) from exc
     db.refresh(row)
     return row
 

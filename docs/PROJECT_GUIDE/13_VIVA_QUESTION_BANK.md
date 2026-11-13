@@ -253,7 +253,7 @@ The question and the retrieved chunks, with title and page. The instruction is t
 `answer_mode=llm_unavailable`. The sources are still shown, with an error. A substitute paragraph is not written by the server. This failure path was not executed against the live API in this environment.
 
 **77. What model name is configured?**  
-`GEMINI_MODEL` defaults to `gemini-2.0-flash` in `.env.example`. Change it if Google retires that id. The code calls `client.models.generate_content`.
+`GEMINI_MODEL` defaults to `gemini-3.5-flash-lite` in `.env.example`. `gemini-2.0-flash` was shut down on 1 June 2026 and is not the default. The code calls `client.models.generate_content`. Transient Gemini failures are retried. A failed call quotes the retrieved pages and does not show the provider's raw error.
 
 **78. Why not let the LLM answer from its own memory of universities?**  
 Those memories are not this institute's PDF, and they may be wrong. The product requirement is to cite uploaded documents or refuse.

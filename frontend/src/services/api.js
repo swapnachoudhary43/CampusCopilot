@@ -12,6 +12,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401 && localStorage.getItem("cc_token")) {
+      localStorage.removeItem("cc_token");
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.assign("/login");
+      }
+    }
+    if (status === 429 && error.response?.data && typeof error.response.data.detail !== "string") {
+      error.response.data.detail = "Too many requests. Wait a moment and try again.";
+    }
+    return Promise.reject(error);
+  },
+);
+
 export function errorMessage(error) {
   const detail = error?.response?.data?.detail;
   if (!detail) {

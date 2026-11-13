@@ -2,7 +2,7 @@
 
 CampusCopilot is a final-year demonstration of a campus assistant. Students ask questions about uploaded institutional PDFs. The system retrieves relevant pages, cites them, and refuses to invent a rule when the documents do not contain the answer. A separate assistant can file a complaint or register for an event, but only after the user confirms. Complaints are labelled by a saved scikit-learn model. Priority is a visible keyword rule, not a second model.
 
-The starting document library is public material from **Devi Ahilya Vishwavidyalaya, Indore**, downloaded from dauniv.ac.in on 12 November 2026. Source URLs are stored with each file. See [docs/DATA_SOURCES_AND_PROVENANCE.md](docs/DATA_SOURCES_AND_PROVENANCE.md). Accounts, complaints, and events marked DEMO DATA were written for this project and are not DAVV records. Four of the downloaded PDFs have no text layer, so they are stored as `needs_ocr` and are not used as citations.
+An administrator can crawl public pages on dauniv.ac.in and ietdavv.edu.in into the same search index. Document search combines semantic similarity and keyword (BM25) ranking. Gemini, when configured, uses `GEMINI_MODEL` (default `gemini-3.5-flash-lite`). If that call fails, the retrieved pages are still shown. The starting document library is public material from **Devi Ahilya Vishwavidyalaya, Indore**, downloaded from dauniv.ac.in on 12 November 2026. Source URLs are stored with each file. See [docs/DATA_SOURCES_AND_PROVENANCE.md](docs/DATA_SOURCES_AND_PROVENANCE.md). Accounts, complaints, and events marked DEMO DATA were written for this project and are not DAVV records. Four of the downloaded PDFs have no text layer, so they are stored as `needs_ocr` and are not used as citations.
 
 ## What you can demonstrate
 
@@ -60,7 +60,7 @@ From `backend`, on the machine used to build this copy:
 ..\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Last run recorded for this copy: **21 passed in 20.94s**.
+Last run recorded for this copy: **26 passed in 33.83s**. The frontend production build completed with Vite 6.
 
 The complaint classifier was trained on 160 synthetic complaints, with a stratified 128/32 split (`random_state=42`). Logistic regression and linear SVM both scored:
 

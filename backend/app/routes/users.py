@@ -81,6 +81,17 @@ def update_user(
         raise HTTPException(status_code=404, detail="User not found.")
     if body.is_active is False and user.id == actor.id:
         raise HTTPException(status_code=400, detail="You cannot deactivate your own account.")
+    removing_admin = user.role == "admin" and user.is_active and (
+        body.role not in (None, "admin") or body.is_active is False
+    )
+    if removing_admin:
+        others = (
+            db.query(User)
+            .filter(User.role == "admin", User.is_active.is_(True), User.id != user.id)
+            .count()
+        )
+        if others == 0:
+            raise HTTPException(status_code=400, detail="The last active administrator cannot be removed.")
     if body.full_name is not None:
         user.full_name = body.full_name.strip()
     if body.department is not None:

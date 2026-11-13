@@ -30,6 +30,16 @@ def get_current_user(
     user = db.get(User, user_id)
     if user is None or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="This account is inactive or does not exist.")
+    token_version = payload.get("tv", 0)
+    try:
+        token_version = int(token_version)
+    except (TypeError, ValueError):
+        token_version = -1
+    if token_version != int(user.token_version or 0):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This login token is no longer valid. Please sign in again.",
+        )
     return user
 
 

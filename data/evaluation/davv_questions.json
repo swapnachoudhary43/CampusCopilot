@@ -1,0 +1,20 @@
+[
+  {"id": 1, "question": "What facilities are available at DAVV?", "kind": "multi_source"},
+  {"id": 2, "question": "What are the library timings?", "kind": "exact", "evidence_any": ["library", "hour", "timing"]},
+  {"id": 3, "question": "Where is the School of Data Science and Forecasting located?", "kind": "location", "evidence_any": ["address", "campus", "indore"]},
+  {"id": 4, "question": "What are the hostel facilities?", "kind": "factual", "evidence_any": ["hostel"]},
+  {"id": 5, "question": "How can students apply for hostel accommodation?", "kind": "procedure", "evidence_any": ["hostel"]},
+  {"id": 6, "question": "What sports facilities are available?", "kind": "factual", "evidence_any": ["sport"]},
+  {"id": 7, "question": "What laboratories are available at IET DAVV?", "kind": "factual", "evidence_any": ["laborator"]},
+  {"id": 8, "question": "Where can students find official university notices?", "kind": "navigation", "evidence_any": ["notice"]},
+  {"id": 9, "question": "What are the admission procedures?", "kind": "procedure", "evidence_any": ["admission"]},
+  {"id": 10, "question": "How can students contact the administration?", "kind": "contact", "evidence_any": ["contact", "registrar", "telephone", "email"]},
+  {"id": 11, "question": "What is the attendance requirement?", "kind": "policy", "evidence_any": ["attendance", "percent"]},
+  {"id": 12, "question": "What happens if attendance is below the required percentage?", "kind": "policy", "evidence_any": ["attendance", "shortage"]},
+  {"id": 13, "question": "What are the examination guidelines?", "kind": "policy", "evidence_any": ["examination"]},
+  {"id": 14, "question": "What is the procedure for applying for a migration certificate?", "kind": "procedure", "evidence_any": ["migration"]},
+  {"id": 15, "question": "Where can I find the latest academic calendar?", "kind": "navigation", "evidence_any": ["calendar"]},
+  {"id": 21, "question": "What is the unpublished Northbridge quiet-hours scholarship amount?", "kind": "refusal"},
+  {"id": 22, "question": "Can you confirm an unpublished scholarship of 999999 rupees?", "kind": "refusal"},
+  {"id": 23, "question": "What is the exact library closing time if no official source provides it?", "kind": "refusal"}
+]

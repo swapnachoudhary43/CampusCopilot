@@ -6,6 +6,7 @@ easy to explain. The companion JSON file records chunk ids in index order.
 """
 
 import json
+import os
 
 import numpy as np
 
@@ -34,9 +35,12 @@ def rebuild_index(chunk_ids: list[int], vectors: np.ndarray, backend_name: str) 
     faiss.normalize_L2(matrix)
     index = faiss.IndexFlatIP(matrix.shape[1])
     index.add(matrix)
-    faiss.write_index(index, str(settings.faiss_index_path))
+    temporary = settings.faiss_index_path.with_suffix(".index.tmp")
+    faiss.write_index(index, str(temporary))
+    os.replace(temporary, settings.faiss_index_path)
     meta = {
         "backend": backend_name,
+        "embedding_model": settings.embedding_model,
         "dim": int(matrix.shape[1]),
         "chunk_ids": chunk_ids,
     }
@@ -54,6 +58,12 @@ def search_index(query_vector: np.ndarray, top_k: int) -> list[tuple[int, float]
     if index.ntotal == 0:
         return []
     query = np.ascontiguousarray(query_vector.reshape(1, -1), dtype=np.float32)
+    saved_model = meta.get("embedding_model")
+    if saved_model and saved_model != settings.embedding_model:
+        raise RuntimeError(
+            "The search index was built with a different embedding model. "
+            "Use Rebuild search index before asking questions."
+        )
     if query.shape[1] != meta["dim"]:
         raise RuntimeError(
             "The saved FAISS index does not match the current embedding size. "

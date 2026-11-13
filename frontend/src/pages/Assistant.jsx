@@ -17,7 +17,9 @@ const ACTION_PROMPTS = [
 const MODE_COPY = {
   gemini: "Generated from retrieved documents",
   retrieval_only: "Quoted from documents — language model not used",
-  insufficient_context: "Not found in the uploaded documents",
+  insufficient_context: "Not found in indexed official sources",
+  schedule: "From the event schedule",
+  needs_ocr: "Matching file is scanned and cannot be searched",
   llm_unavailable: "Language model unavailable",
 };
 
@@ -122,6 +124,16 @@ export default function Assistant() {
             {messages.map((message) => (
               <article key={message.id} className={message.role === "user" ? "ml-8 rounded-2xl bg-indigo-600 px-4 py-3 text-sm text-white" : "mr-8 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-800"}>
                 <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.metadata?.workflow?.length ? (
+                  <ol className="mt-2 space-y-1 text-xs text-slate-500">
+                    {message.metadata.workflow.map((step) => (
+                      <li key={step.name}>
+                        <span className="font-semibold text-slate-700">{step.name}</span> · {step.status}
+                        {step.detail ? ` — ${step.detail}` : ""}
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
                 {message.metadata?.answer_mode ? (
                   <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-indigo-700">{MODE_COPY[message.metadata.answer_mode] || message.metadata.answer_mode}</p>
                 ) : null}
@@ -129,8 +141,23 @@ export default function Assistant() {
                   <div className="mt-3 grid gap-2">
                     {message.sources.map((source) => (
                       <div key={`${source.document_id}-${source.page_number}`} className="rounded-xl border border-slate-200 bg-white p-3 text-slate-700">
-                        <p className="text-xs font-semibold text-slate-900">{source.document_title} · page {source.page_number} · similarity {source.score}</p>
+                        <p className="text-xs font-semibold text-slate-900">
+                          {source.document_title}
+                          {source.page_number ? ` · page ${source.page_number}` : ""}
+                          {source.retrieval_method === "hybrid"
+                            ? ` · semantic ${Number(source.semantic_score ?? source.score).toFixed(2)} · keyword ${Number(source.lexical_score || 0).toFixed(2)}`
+                            : source.retrieval_method === "title_only"
+                              ? " · scanned file, not searchable"
+                              : ` · score ${Number(source.score || 0).toFixed(2)}`}
+                        </p>
                         <p className="mt-1 text-xs">{source.excerpt}</p>
+                        {source.source_url ? (
+                          <a className="mt-1 block text-xs text-indigo-700" href={source.source_url} target="_blank" rel="noreferrer">
+                            {source.source_url}
+                          </a>
+                        ) : null}
+                        {source.publication_date ? <p className="text-xs text-slate-500">Publication date: {source.publication_date}</p> : null}
+                        {source.retrieved_at ? <p className="text-xs text-slate-500">Indexed from source: {source.retrieved_at}</p> : null}
                       </div>
                     ))}
                   </div>

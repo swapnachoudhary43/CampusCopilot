@@ -96,6 +96,7 @@ def ask(
                     "answer_mode": result["answer_mode"],
                     "similarity_threshold": result["similarity_threshold"],
                     "embedding_backend": result["embedding_backend"],
+                    "workflow": result.get("workflow") or [],
                 }
             ),
         )

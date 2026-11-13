@@ -8,7 +8,9 @@ Updated after the local demo run on this copy. "Completed" means the code path e
 - Roles `student`, `faculty`, and `admin`, checked in FastAPI. Public registration creates students only.
 - PDF upload checks: extension, `%PDF` header, 15 MB, 80 pages, empty or image-only PDFs saved as `needs_ocr` and not indexed.
 - Chunking, MiniLM embeddings, FAISS `IndexFlatIP`, citations with title and page, delete and rebuild.
-- RAG refusal below similarity 0.48. Retrieval-only quotations when no Gemini key is set.
+- RAG uses semantic search and BM25, fused with reciprocal rank fusion. Scores are reported separately. A semantic cutoff alone does not decide every hit. Retrieval-only quotations are used when no Gemini key is set. Gemini calls use `GEMINI_MODEL` (default `gemini-3.5-flash-lite`). Transient failures are retried, then the retrieved pages are returned without the provider error.
+- A scanned PDF stays `needs_ocr`. If its title matches an examination-timetable question, the assistant names that file and does not substitute a class timetable.
+- Duplicate PDF uploads are rejected by SHA-256. Password changes increment `token_version` so older tokens stop working. The last active administrator cannot be removed. Login failures are rate limited in the API process. Public `/api/health` returns only `status`.
 - Page excerpts join the matching chunks of a page in reading order. On the DAVV index the highest-scoring Ordinance 6 chunk does not contain the attendance percentage; see `docs/DATA_SOURCES_AND_PROVENANCE.md`.
 - Full questions are not treated as follow-ups. Only explicit follow-up prefixes and fragments under 24 characters reuse the previous question.
 - Complaint create, list, detail, assign, status changes, remarks required to resolve or close, history, and hiding other users' complaints.
