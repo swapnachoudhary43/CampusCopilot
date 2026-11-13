@@ -19,6 +19,7 @@ const MODE_COPY = {
   retrieval_only: "Quoted from documents — language model not used",
   insufficient_context: "Not found in the uploaded documents",
   llm_unavailable: "Language model unavailable",
+  gemini_fallback: "Gemini unavailable — showing retrieved source passages",
 };
 
 export default function Assistant() {
