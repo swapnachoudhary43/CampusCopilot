@@ -1,0 +1,16 @@
+[
+  {
+    "title": "DEMO: notice list placeholder",
+    "audience": "all",
+    "provenance": "demo",
+    "source_url": null,
+    "body": "DEMO DATA. This notice was written only so the notice screen can be demonstrated. It is not a Devi Ahilya Vishwavidyalaya notice. It does not state a fee, a deadline, or a rule."
+  },
+  {
+    "title": "Excerpt from Ordinance 6 on a regular course of study",
+    "audience": "students",
+    "provenance": "official_public_copy",
+    "source_url": "https://www.dauniv.ac.in/frontassets/ordinance/Ordinance-6.pdf",
+    "body": "EXCERPT, NOT A NEW CIRCULAR. The paragraph below is copied from the public PDF of DAVV Ordinance No. 6, with line breaks removed. The PDF is the source. (iv) A regular Course of Study means: (a) In case of Faculties other than the Faculties of Medicine, Ayurveda and Engineering, attendance at least seventy five percent of lectures and practical separately. (b) In case of the Faculties of Medicine and Ayurveda attendance at least seventy five percent of lectures and eighty five percent of practicals and clinical separately."
+  }
+]

@@ -1,0 +1,161 @@
+id,text,category,source
+1,The ceiling fan in classroom B-204 has stopped working since Monday morning.,Infrastructure,synthetic_project_authored
+2,Water is leaking from the ceiling in the civil engineering corridor and the floor is slippery.,Infrastructure,synthetic_project_authored
+3,The projector in lecture hall LH-3 does not switch on even after the cable is reseated.,Infrastructure,synthetic_project_authored
+4,Classroom A-110 has had no electricity since the first lecture today.,Infrastructure,synthetic_project_authored
+5,"The main gate barrier arm is stuck, so cars cannot enter the campus.",Infrastructure,synthetic_project_authored
+6,Bench number 12 in the drawing hall is broken and feels unsafe to sit on.,Infrastructure,synthetic_project_authored
+7,The lift in the academic block has been out of service for two days.,Infrastructure,synthetic_project_authored
+8,Street lights on the road between the hostel and the academic block do not turn on at night.,Infrastructure,synthetic_project_authored
+9,The air conditioner in the seminar hall is blowing warm air during classes.,Infrastructure,synthetic_project_authored
+10,Several floor tiles outside the science block washroom are cracked.,Infrastructure,synthetic_project_authored
+11,Rainwater enters laboratory L-2 through a broken window whenever it rains.,Infrastructure,synthetic_project_authored
+12,The microphone in auditorium A produces a loud hum and cannot be used for events.,Infrastructure,synthetic_project_authored
+13,There is a large pothole at the entrance of parking area B.,Infrastructure,synthetic_project_authored
+14,The door of classroom C-301 does not lock after the last class.,Infrastructure,synthetic_project_authored
+15,The staircase light near the canteen flickers and sometimes stays off.,Infrastructure,synthetic_project_authored
+16,An electrical socket in lab L-5 has exposed pins and looks unsafe.,Infrastructure,synthetic_project_authored
+17,Part of the bicycle stand roof has collapsed after the storm.,Infrastructure,synthetic_project_authored
+18,The whiteboard in tutorial room T-4 is scratched and markers do not show.,Infrastructure,synthetic_project_authored
+19,A garden tap near the admin block has been running continuously since yesterday.,Infrastructure,synthetic_project_authored
+20,The fire exit sign on the first floor of the academic block is not illuminated.,Infrastructure,synthetic_project_authored
+21,The geyser in hostel block H2 room 214 is not heating water.,Hostel,synthetic_project_authored
+22,Room 118 has a tap that leaks through the night and wets the floor.,Hostel,synthetic_project_authored
+23,The hostel mess served sour rice at dinner on Monday.,Hostel,synthetic_project_authored
+24,The warden office is not issuing overnight gate passes this week.,Hostel,synthetic_project_authored
+25,The common bathroom on the first floor of hostel H3 has no water supply.,Hostel,synthetic_project_authored
+26,My hostel room door lock is jammed and I cannot get in with my key.,Hostel,synthetic_project_authored
+27,The window mesh in hostel room 302 is torn and mosquitoes come in at night.,Hostel,synthetic_project_authored
+28,All washing machines in the hostel laundry room are out of order.,Hostel,synthetic_project_authored
+29,Power backup in hostel H4 fails every evening around 7 pm.,Hostel,synthetic_project_authored
+30,My October hostel mess bill includes a charge that the office cannot explain.,Hostel,synthetic_project_authored
+31,The hostel study room stays locked during the hours printed on the door.,Hostel,synthetic_project_authored
+32,The bed frame in hostel room 156 is uneven and the mattress keeps sliding.,Hostel,synthetic_project_authored
+33,There is no hot water on the second floor of the boys hostel today.,Hostel,synthetic_project_authored
+34,Drinking water cans were not delivered to hostel H2 this morning.,Hostel,synthetic_project_authored
+35,The television in the hostel common room has a cracked screen.,Hostel,synthetic_project_authored
+36,Visitors were still in the hostel corridor after quiet hours and the guard did not stop them.,Hostel,synthetic_project_authored
+37,The cupboard in hostel room 87 does not close and the key is missing.,Hostel,synthetic_project_authored
+38,The hostel roof drips above room 401 whenever it rains.,Hostel,synthetic_project_authored
+39,Two students have been allotted the same bed in the new hostel list.,Hostel,synthetic_project_authored
+40,The elevator in hostel tower B is stuck between the second and third floors.,Hostel,synthetic_project_authored
+41,Campus bus route 4 did not arrive at the main stop this morning.,Transportation,synthetic_project_authored
+42,The evening city bus was so crowded that students were standing on the steps.,Transportation,synthetic_project_authored
+43,The hostel-to-academic shuttle was cancelled today without a notice at the stop.,Transportation,synthetic_project_authored
+44,Campus bus number 12 skipped the north gate stop during the lunch trip.,Transportation,synthetic_project_authored
+45,The 5 pm bus left ten minutes early and several students missed it.,Transportation,synthetic_project_authored
+46,Please arrange an extra bus during exam week because the regular buses are full.,Transportation,synthetic_project_authored
+47,The bus pass counter was closed during the posted lunch hour.,Transportation,synthetic_project_authored
+48,"The display board inside campus bus number 7 is blank, so stops are not announced.",Transportation,synthetic_project_authored
+49,Seats are torn in the minibus used for industrial visits.,Transportation,synthetic_project_authored
+50,The transport office has not refunded my cancelled monthly bus pass.,Transportation,synthetic_project_authored
+51,The driver of the morning route refused to stop at the library circle.,Transportation,synthetic_project_authored
+52,There is no return bus after the 6 pm laboratory on Fridays.,Transportation,synthetic_project_authored
+53,The campus shuttle brake made a grinding noise throughout yesterday's trip.,Transportation,synthetic_project_authored
+54,Bus route 2 arrived 40 minutes late and I missed the first class.,Transportation,synthetic_project_authored
+55,The student bus pass machine at the transport office is not printing passes.,Transportation,synthetic_project_authored
+56,Please repair the shelter roof at the south campus bus stop. It leaks on the seats.,Transportation,synthetic_project_authored
+57,The industrial-visit bus did not have a faculty attendant as promised.,Transportation,synthetic_project_authored
+58,Route 9 does not follow the timetable printed at the hostel stop.,Transportation,synthetic_project_authored
+59,The night bus after cultural practice was withdrawn without an alternative.,Transportation,synthetic_project_authored
+60,A campus auto near the gate overcharged compared with the printed fare card.,Transportation,synthetic_project_authored
+61,I cannot log in to the student portal and the password reset mail never arrives.,IT Support,synthetic_project_authored
+62,Wi-Fi in the academic block disconnects every few minutes during class.,IT Support,synthetic_project_authored
+63,Laboratory computer LC-22 does not boot past the black screen.,IT Support,synthetic_project_authored
+64,The classroom computer cannot detect the projector on the HDMI port.,IT Support,synthetic_project_authored
+65,The learning portal shows error 500 when I open my course page.,IT Support,synthetic_project_authored
+66,My official student email account is locked and webmail will not accept the password.,IT Support,synthetic_project_authored
+67,The printer in computer lab 1 is jammed and the print queue is stuck.,IT Support,synthetic_project_authored
+68,Please install Python on the laboratory machines before Friday's practical.,IT Support,synthetic_project_authored
+69,The attendance app crashes as soon as I try to submit the form.,IT Support,synthetic_project_authored
+70,The lab VPN does not connect to the department server this afternoon.,IT Support,synthetic_project_authored
+71,My campus login works on the website but not on the library catalogue computer.,IT Support,synthetic_project_authored
+72,The online fee page times out after I enter my registration number.,IT Support,synthetic_project_authored
+73,I cannot upload the assignment because the portal rejects every PDF.,IT Support,synthetic_project_authored
+74,The computer centre helpdesk ticket I raised on Monday is still unanswered.,IT Support,synthetic_project_authored
+75,Wi-Fi login says the device limit has been reached even though I removed old phones.,IT Support,synthetic_project_authored
+76,The departmental website is down and the faculty list will not load.,IT Support,synthetic_project_authored
+77,Excel on lab machine LC-08 closes immediately after it opens.,IT Support,synthetic_project_authored
+78,The smart classroom panel in LH-1 restarts in a loop.,IT Support,synthetic_project_authored
+79,I am not receiving official notices on the student email even though classmates are.,IT Support,synthetic_project_authored
+80,The coding-lab server rejected my SSH key after the weekend maintenance.,IT Support,synthetic_project_authored
+81,"The catalogue says Sample Data Mining Textbook is available, but it is not on the shelf.",Library,synthetic_project_authored
+82,"I need to renew a borrowed book, but the library counter token system is down.",Library,synthetic_project_authored
+83,Please open a discussion room booking slot in the library for our project group.,Library,synthetic_project_authored
+84,The digital library password printed on my card does not work.,Library,synthetic_project_authored
+85,A reference book I returned yesterday is still shown as issued on my account.,Library,synthetic_project_authored
+86,The library reading room was locked at 4 pm even though the notice says it is open.,Library,synthetic_project_authored
+87,I cannot find the previous-year question papers in the library reference section.,Library,synthetic_project_authored
+88,The book I reserved last week was given to someone else.,Library,synthetic_project_authored
+89,Please add more copies of the sample machine learning textbook. The only copy is always issued.,Library,synthetic_project_authored
+90,The library membership form will not accept my current semester details.,Library,synthetic_project_authored
+91,Journals listed for our programme are missing from the current display rack.,Library,synthetic_project_authored
+92,The self-checkout kiosk in the library does not scan barcodes today.,Library,synthetic_project_authored
+93,I was fined on the catalogue for a book that the counter staff already received.,Library,synthetic_project_authored
+94,The quiet zone on the library first floor is being used for a loud group discussion.,Library,synthetic_project_authored
+95,Please repair the catalogue computer near the library entrance. The screen stays blank.,Library,synthetic_project_authored
+96,My library card is not recognised by the entry gate turnstile.,Library,synthetic_project_authored
+97,The thesis submission counter at the library sent me away without a receipt.,Library,synthetic_project_authored
+98,Overnight study seats in the library were all unmarked and people argued over them.,Library,synthetic_project_authored
+99,The sample statistics handbook is shelved under the wrong call number.,Library,synthetic_project_authored
+100,I need a no-dues letter from the library and the desk said the system cannot print it.,Library,synthetic_project_authored
+101,My internal assessment marks for AI21 are not visible on the student portal.,Academic,synthetic_project_authored
+102,The timetable clashes between the machine learning lab and the elective lecture.,Academic,synthetic_project_authored
+103,I need a duplicate grade card because the printed name does not match my records.,Academic,synthetic_project_authored
+104,The assignment deadline on the course page does not match what was announced in class.,Academic,synthetic_project_authored
+105,The elective syllabus has not been uploaded and the first quiz is next week.,Academic,synthetic_project_authored
+106,I was marked absent for the class test even though I submitted the answer script.,Academic,synthetic_project_authored
+107,Please issue a bonafide certificate for my scholarship application.,Academic,synthetic_project_authored
+108,The prerequisite for the deep learning elective is not explained in the course list.,Academic,synthetic_project_authored
+109,The revaluation result for my April examination is still not published.,Academic,synthetic_project_authored
+110,Tutorial allocation has placed me in two batches at the same time.,Academic,synthetic_project_authored
+111,The department has not published the seminar presentation schedule.,Academic,synthetic_project_authored
+112,My course registration shows a subject I never selected.,Academic,synthetic_project_authored
+113,The internal viva panel for the project course has no published slot for our team.,Academic,synthetic_project_authored
+114,Attendance on the academic portal is lower than the sheet I signed in class.,Academic,synthetic_project_authored
+115,Please correct the section mapping. I am listed in section B but I attend section A.,Academic,synthetic_project_authored
+116,The end-semester seating plan does not include my registration number.,Academic,synthetic_project_authored
+117,I need the syllabus completion certificate for an internship application.,Academic,synthetic_project_authored
+118,The faculty advisor slot this week was cancelled and no new time was announced.,Academic,synthetic_project_authored
+119,My elective swap request has been pending since the add-drop window opened.,Academic,synthetic_project_authored
+120,The grade for the laboratory course was entered against a different course code.,Academic,synthetic_project_authored
+121,The washroom near classroom B-204 has not been cleaned for two days.,Cleanliness,synthetic_project_authored
+122,Food waste is left outside the canteen overnight and it smells in the morning.,Cleanliness,synthetic_project_authored
+123,The science block corridor smells of stagnant water near the drain.,Cleanliness,synthetic_project_authored
+124,Desks in the chemistry lab are sticky and were not wiped after the practical.,Cleanliness,synthetic_project_authored
+125,Garbage bins near the bus stop are overflowing onto the footpath.,Cleanliness,synthetic_project_authored
+126,The drinking water area has algae around the floor drain.,Cleanliness,synthetic_project_authored
+127,Dining tables in the mess were not cleaned after lunch.,Cleanliness,synthetic_project_authored
+128,The laboratory floor still has residue that was not mopped after the experiment.,Cleanliness,synthetic_project_authored
+129,Windows in the reading hall are covered in dust and the room feels unclean.,Cleanliness,synthetic_project_authored
+130,The hostel corridor dustbins have not been emptied for three days.,Cleanliness,synthetic_project_authored
+131,There is litter all around the open-air theatre after last night's practice.,Cleanliness,synthetic_project_authored
+132,The handwash area near the canteen has no soap and the basin is dirty.,Cleanliness,synthetic_project_authored
+133,Classrooms on the second floor were not swept before the morning lecture.,Cleanliness,synthetic_project_authored
+134,A foul smell is coming from the blocked drain behind the auditorium.,Cleanliness,synthetic_project_authored
+135,The sports ground changing room floor is wet and unclean.,Cleanliness,synthetic_project_authored
+136,Please clear the dry leaves and plastic cups piled beside the library steps.,Cleanliness,synthetic_project_authored
+137,The staff pantry sink is clogged and food scraps are sitting in it.,Cleanliness,synthetic_project_authored
+138,Wash basins in the examination hall block were stained throughout the test day.,Cleanliness,synthetic_project_authored
+139,"The recycling bins are mixed with wet waste, so the separation is not being maintained.",Cleanliness,synthetic_project_authored
+140,Cobwebs and dust are hanging above the desks in tutorial room T-2.,Cleanliness,synthetic_project_authored
+141,I want to suggest longer library hours during the examination fortnight.,Other,synthetic_project_authored
+142,The lost-and-found office could not trace my student identity card.,Other,synthetic_project_authored
+143,The medical room cot was already occupied and there was nowhere for a resting student.,Other,synthetic_project_authored
+144,The sports room is not issuing basketballs even during the posted hours.,Other,synthetic_project_authored
+145,Where should alumni-meet volunteers report? The entrance desk had no list.,Other,synthetic_project_authored
+146,A canteen vendor refused to give a bill for the lunch I paid for.,Other,synthetic_project_authored
+147,The campus map at the main entrance is outdated and does not show the new block.,Other,synthetic_project_authored
+148,Please review ramp access near the auditorium for wheelchair users.,Other,synthetic_project_authored
+149,The cultural club room key was not available with security for our booked slot.,Other,synthetic_project_authored
+150,My name is spelled incorrectly on the identity card issued last week.,Other,synthetic_project_authored
+151,I found a wallet near the canteen and the security desk would not record it.,Other,synthetic_project_authored
+152,The student council form asks for a document that the office cannot describe.,Other,synthetic_project_authored
+153,Please share the contact for the counselling room. The posted number is not answered.,Other,synthetic_project_authored
+154,The photocopy shop inside campus is charging more than the rate on the wall.,Other,synthetic_project_authored
+155,I need a replacement lanyard because the clip broke on the first day.,Other,synthetic_project_authored
+156,The suggestion box outside the admin office is sealed and forms cannot be inserted.,Other,synthetic_project_authored
+157,Volunteers for the blood donation camp were not told where to assemble.,Other,synthetic_project_authored
+158,The campus radio club equipment request has had no reply for two weeks.,Other,synthetic_project_authored
+159,Please add a covered waiting area outside the medical room.,Other,synthetic_project_authored
+160,My club reimbursement voucher was returned without a reason written on it.,Other,synthetic_project_authored
