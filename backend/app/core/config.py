@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     retrieval_top_k: int = 4
     llm_provider: str = "auto"
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-3.8-flash"
     max_upload_mb: int = 15
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     chunk_size: int = 900
