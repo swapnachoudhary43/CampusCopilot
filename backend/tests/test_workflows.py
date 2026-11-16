@@ -230,6 +230,23 @@ def test_notice_summary_is_labelled(client):
     assert any(item["verified"] is False for item in body["deadlines"])
 
 
+def test_notice_summary_prompt_requires_english_for_hinglish_source(monkeypatch):
+    from app.services.notices import _gemini_notice
+
+    captured = {}
+
+    def generate(prompt):
+        captured["prompt"] = prompt
+        return '{"summary":"Submit the scholarship form by 20 November.","deadlines":[],"audience":"students","action_items":[]}'
+
+    monkeypatch.setattr("app.services.notices.generate_with_gemini", generate)
+    result = _gemini_notice("Sabhi students scholarship form 20 November tak submit karo.")
+
+    assert "clear English only" in captured["prompt"]
+    assert "Translate the meaning into English" in captured["prompt"]
+    assert result["summary"] == "Submit the scholarship form by 20 November."
+
+
 def test_analytics_uses_database_counts(client):
     student = register(client, "meera@example.com")
     register(client, "asha@example.com", "Asha Menon")

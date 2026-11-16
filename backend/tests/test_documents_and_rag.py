@@ -83,7 +83,7 @@ def test_index_and_answer_with_citation(client):
     answer = client.post(
         f"/api/chat/sessions/{session['id']}/messages",
         headers=auth_header(token),
-        json={"content": "What is the minimum attendance required for examinations?"},
+        json={"content": "According to the uploaded Attendance Policy, what minimum attendance does it state?"},
     )
     assert answer.status_code == 200
     body = answer.json()
@@ -92,6 +92,61 @@ def test_index_and_answer_with_citation(client):
     assert body["sources"][0]["document_title"] == "Attendance Policy"
     assert body["sources"][0]["page_number"] == 1
     assert "75" in body["content"] or "75" in body["sources"][0]["excerpt"]
+
+
+def test_exam_attendance_question_prefers_davv_ordinance_over_an_uploaded_policy(client):
+    from app.database.session import get_session_factory
+    from app.services.rag.ingest import upsert_text_source
+
+    token, _user_id = _admin(client)
+    db = get_session_factory()()
+    upsert_text_source(
+        db,
+        title="Attendance Policy",
+        category="Attendance",
+        text=(
+            "The sample attendance target is 75 percent. Students should not assume 70 percent "
+            "will be rounded up. The portal warning starts below 80 percent."
+        ),
+        source_url="https://example.com/attendance-policy",
+        provenance="uploaded",
+        document_type="uploaded_pdf",
+    )
+    upsert_text_source(
+        db,
+        title="Ordinance No. 6 — Examinations (General)",
+        category="Examinations",
+        text=(
+            "(iii) A separate provision (c) mentions attendance of 75 percent. "
+            "(iv) A regular course of study means: (a) Faculties other than Medicine, Ayurveda "
+            "and Engineering require attendance of at least seventy five percent of lectures "
+            "and practicals separately. (b) Medicine and Ayurveda require at least seventy five "
+            "percent in lectures and eighty five percent in practicals and clinical separately. "
+            "(c) Engineering requires attendance of at least eighty five percent in lectures "
+            "and practical/sessional work separately."
+        ),
+        source_url="https://www.dauniv.ac.in/frontassets/ordinance/Ordinance-6.pdf",
+        provenance="official_pdf",
+        document_type="official_pdf",
+    )
+    db.close()
+
+    session = client.post("/api/chat/sessions", headers=auth_header(token)).json()
+    answer = client.post(
+        f"/api/chat/sessions/{session['id']}/messages",
+        headers=auth_header(token),
+        json={"content": "the minimum attendance percentage required to sit for examinations?"},
+    )
+
+    assert answer.status_code == 200
+    body = answer.json()
+    assert body["metadata"]["answer_mode"] == "policy"
+    assert "75% in lectures and practicals separately" in body["content"]
+    assert "75% in theory and 85% in practicals" in body["content"]
+    assert "85% in lectures and practical/sessional work" in body["content"]
+    assert "70 percent" not in body["content"]
+    assert "80 percent" not in body["content"]
+    assert all("Ordinance No. 6" in source["document_title"] for source in body["sources"])
 
 
 def test_unknown_question_is_not_invented(client):
@@ -113,7 +168,33 @@ def test_unknown_question_is_not_invented(client):
     body = answer.json()
     assert body["metadata"]["answer_mode"] == "insufficient_context"
     assert body["sources"] == []
-    assert "do not contain enough information" in body["content"].lower()
+    assert "couldn't find enough information" in body["content"].lower()
+
+
+def test_unmatched_named_entity_does_not_return_nearby_policy(client):
+    token, _user_id = _admin(client)
+    client.post(
+        "/api/documents",
+        headers=auth_header(token),
+        data={"title": "Scholarship Policy", "category": "Other"},
+        files={
+            "file": (
+                "scholarship.pdf",
+                pdf_bytes("The scholarship amount is determined under the university scholarship policy."),
+                "application/pdf",
+            )
+        },
+    )
+    session = client.post("/api/chat/sessions", headers=auth_header(token)).json()
+    answer = client.post(
+        f"/api/chat/sessions/{session['id']}/messages",
+        headers=auth_header(token),
+        json={"content": "What is the unpublished Northbridge quiet-hours scholarship amount?"},
+    )
+    assert answer.status_code == 200
+    body = answer.json()
+    assert body["metadata"]["answer_mode"] == "insufficient_context"
+    assert body["sources"] == []
 
 
 def test_student_cannot_upload(client):

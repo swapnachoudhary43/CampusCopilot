@@ -1,8 +1,8 @@
 # CampusCopilot
 
-CampusCopilot is a final-year demonstration of a campus assistant. Students ask questions about uploaded institutional PDFs. The system retrieves relevant pages, cites them, and refuses to invent a rule when the documents do not contain the answer. A separate assistant can file a complaint or register for an event, but only after the user confirms. Complaints are labelled by a saved scikit-learn model. Priority is a visible keyword rule, not a second model.
+CampusCopilot is a final-year demonstration of a campus assistant. Students ask questions about uploaded institutional PDFs and indexed public pages from DAVV and its schools/institutes. The system retrieves relevant evidence, cites official sources, and refuses to invent an answer when the sources do not contain it. A separate assistant can file a complaint or register for an event, but only after the user confirms. Complaints are labelled by a saved scikit-learn model. Priority is a visible keyword rule, not a second model.
 
-An administrator can crawl public pages on dauniv.ac.in and ietdavv.edu.in into the same search index. Document search combines semantic similarity and keyword (BM25) ranking. Gemini, when configured, uses `GEMINI_MODEL` (default `gemini-3.5-flash-lite`). If that call fails, the retrieved pages are still shown. The starting document library is public material from **Devi Ahilya Vishwavidyalaya, Indore**, downloaded from dauniv.ac.in on 12 November 2026. Source URLs are stored with each file. See [docs/DATA_SOURCES_AND_PROVENANCE.md](docs/DATA_SOURCES_AND_PROVENANCE.md). Accounts, complaints, and events marked DEMO DATA were written for this project and are not DAVV records. Four of the downloaded PDFs have no text layer, so they are stored as `needs_ocr` and are not used as citations.
+An administrator can crawl allowlisted public pages on dauniv.ac.in, cdoedavv.ac.in, iips.edu.in, and ietdavv.edu.in into the same search index; sign-in portals and scanned PDFs may not expose searchable content. Document search combines semantic similarity and keyword (BM25) ranking. Gemini, when configured, uses `GEMINI_MODEL` (default `gemini-3.5-flash-lite`) to answer the exact question from retrieved evidence. If generation is unavailable, the assistant shows only the top relevant source excerpts. Source URLs are stored with each file. See [docs/DATA_SOURCES_AND_PROVENANCE.md](docs/DATA_SOURCES_AND_PROVENANCE.md). Accounts, complaints, and events marked DEMO DATA were written for this project and are not DAVV records.
 
 ## What you can demonstrate
 
@@ -82,4 +82,4 @@ Logistic regression is the deployed model because it can report a class probabil
 - `docs/PROJECT_GUIDE/` — the viva guide
 - `docs/IMPLEMENTATION_STATUS.md` — what is finished, partial, or intentionally not built
 
-Gemini is optional. With an empty `GEMINI_API_KEY`, document answers quote the retrieved pages and say that no language model was used. The project does not invent an answer when the API is missing.
+Gemini is optional. With an empty `GEMINI_API_KEY`, document answers show only the top retrieved excerpts. The project does not invent an answer when the API is missing.

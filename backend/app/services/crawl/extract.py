@@ -1,6 +1,7 @@
 """Turn a public HTML page into text and followable links."""
 
 from html.parser import HTMLParser
+import re
 from urllib.parse import urljoin, urlparse
 
 
@@ -62,6 +63,8 @@ def extract_html(html: str, page_url: str) -> tuple[str, str, list[str]]:
 
 def looks_like_script_shell(html: str, text: str) -> bool:
     """A JavaScript application shell has almost no readable text."""
+    if re.search(r"\bloading\s+services\b", text or "", re.IGNORECASE):
+        return True
     if len(" ".join(text.split())) >= 180:
         return False
     lowered = (html or "").lower()

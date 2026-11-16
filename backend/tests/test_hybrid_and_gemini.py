@@ -2,9 +2,9 @@
 
 from types import SimpleNamespace
 
-from app.services.rag.generator import GeminiError
+from app.services.rag.generator import GeminiError, _extract_response_text, build_prompt, quote_retrieved_passages
 from app.services.rag.lexical import bm25_ranks
-from app.services.rag.pipeline import _group_pages, _search_query, requirement_numbers
+from app.services.rag.pipeline import _filter_named_ordinance_sources, _group_pages, _query_anchors, _search_query, requirement_numbers
 from tests.conftest import auth_header, pdf_bytes
 
 
@@ -25,6 +25,67 @@ def test_short_new_topic_is_not_glued_to_the_previous_question():
 def test_short_follow_fragment_keeps_the_previous_question():
     history = [{"role": "user", "content": "What attendance does Ordinance 6 require?"}]
     assert "Ordinance 6" in _search_query("and practicals?", history)
+
+
+def test_retrieval_only_reply_quotes_only_a_few_excerpts_without_search_diagnostics():
+    answer = quote_retrieved_passages(
+        [
+            {"excerpt": "The requested answer is 75 percent.", "document_title": "Attendance rules", "score": 0.9},
+            {"excerpt": "A second relevant requirement.", "document_title": "Other rule", "score": 0.8},
+            {"excerpt": "An unrelated third passage.", "document_title": "Unrelated", "score": 0.7},
+        ],
+        "",
+    )
+    assert answer == "[1] The requested answer is 75 percent.\n\n[2] A second relevant requirement."
+    assert "score" not in answer
+    assert "Unrelated" not in answer
+
+
+def test_generation_prompt_requires_english_for_hinglish_questions_and_sources():
+    prompt = build_prompt(
+        "Attendance criteria kya hai?",
+        [
+            {
+                "document_title": "Ordinance No. 6",
+                "page_number": 1,
+                "excerpt": "Attendance criteria shall be applied by faculty.",
+                "source_url": "https://www.dauniv.ac.in/",
+            }
+        ],
+        [{"role": "user", "content": "Pehle rule batao."}],
+    )
+    assert "Write every answer in clear English" in prompt
+    assert "Do not use Hindi, Hinglish, Devanagari" in prompt
+    assert "Translate relevant source content into English" in prompt
+    assert "apply that category to a named school" in prompt
+
+
+def test_build_prompt_handles_missing_source_fields_without_crashing():
+    prompt = build_prompt(
+        "Where is the attendance rule?",
+        [{"excerpt": "Attendance shall be recorded by faculty.", "source_url": None}],
+        [{"role": "user", "content": "What's the rule?"}],
+    )
+    assert "Untitled document" in prompt
+    assert "not recorded" in prompt
+
+
+def test_extract_response_text_works_for_candidate_payloads():
+    response = SimpleNamespace(
+        candidates=[
+            {
+                "content": {
+                    "parts": [{"text": "  Final answer.  "}],
+                }
+            }
+        ]
+    )
+    assert _extract_response_text(response) == "Final answer."
+
+
+def test_recognized_school_name_is_not_a_required_ordinance_text_anchor():
+    anchors = _query_anchors("attendance criteria of School of Data Science and Forecasting")
+    assert not anchors.intersection({"school", "data", "science", "forecasting"})
 
 
 def test_gemini_failure_returns_evidence_without_the_provider_error(client, monkeypatch):
@@ -54,9 +115,9 @@ def test_gemini_failure_returns_evidence_without_the_provider_error(client, monk
             "file": (
                 "attendance.pdf",
                 pdf_bytes(
-                    "Minimum attendance for examinations is 75 percent. "
-                    "The minimum attendance requirement for examinations is 75 percent in each course. "
-                    "Students need this minimum attendance before examinations."
+                    "A laboratory session is marked absent for the session. Attendance cannot be "
+                    "corrected from an email after the shortage list is published, except when "
+                    "the faculty member confirms a marking error in writing."
                 ),
                 "application/pdf",
             )
@@ -72,7 +133,7 @@ def test_gemini_failure_returns_evidence_without_the_provider_error(client, monk
     answer = client.post(
         f"/api/chat/sessions/{session['id']}/messages",
         headers=auth_header(token),
-        json={"content": "What is the minimum attendance required for examinations?"},
+        json={"content": "How can a lab attendance marking error be corrected?"},
     )
     assert answer.status_code == 200
     body = answer.json()
@@ -163,3 +224,15 @@ def test_named_ordinance_page_with_the_figure_outranks_a_nearby_page():
     assert pages[0]["page_number"] == 1
     assert "seventy five percent" in pages[0]["excerpt"]
     assert all("Ordinance No. 14" not in page["document_title"] for page in pages)
+
+
+def test_named_ordinance_attendance_query_excludes_a_calendar_keyword_match():
+    sources = _filter_named_ordinance_sources(
+        "What is the attendance criteria in Ordinance No. 6?",
+        [
+            {"document_title": "05.10.2026 Revised Academic Calendar", "excerpt": "Ensure at least 75% attendance."},
+            {"document_title": "Ordinance No. 6 — Examinations (General)", "excerpt": "Attendance at least 75 percent."},
+        ],
+    )
+    assert len(sources) == 1
+    assert sources[0]["document_title"].startswith("Ordinance No. 6")

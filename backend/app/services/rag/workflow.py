@@ -4,6 +4,10 @@ These are not separate language-model calls. Each step reads the question,
 the site registry, or the retrieved pages and returns its own result.
 """
 
+from difflib import SequenceMatcher
+
+from app.services.rag.lexical import tokens
+
 DEPARTMENTS = (
     ("school of data science", "School of Data Science and Forecasting", ("dsf.dauniv.ac.in",)),
     ("sdsf", "School of Data Science and Forecasting", ("dsf.dauniv.ac.in",)),
@@ -14,11 +18,32 @@ DEPARTMENTS = (
     ("cdoe", "Centre for Distance and Online Education", ("cdoedavv.ac.in",)),
     ("engineering and technology", "Institute of Engineering and Technology", ("ietdavv.edu.in",)),
     (" iet", "Institute of Engineering and Technology", ("ietdavv.edu.in",)),
-    ("central library", "Central Library", ("lib.dauniv.ac.in", "edu.dauniv.ac.in")),
-    (" library", "Central Library", ("lib.dauniv.ac.in", "edu.dauniv.ac.in")),
+    ("school of education", "School of Education", ("edu.dauniv.ac.in",)),
+    ("central library", "Central Library", ("lib.dauniv.ac.in",)),
+    (" library", "Central Library", ("lib.dauniv.ac.in",)),
     ("student welfare", "Dean of Student Welfare", ("dsw.dauniv.ac.in",)),
     ("placement", "Centralised Placement Cell", ("cpc.dauniv.ac.in",)),
 )
+
+
+def is_latest_request(question: str) -> bool:
+    words = tokens(question)
+    if any(word in {"latest", "newest", "recent", "lastest"} for word in words):
+        return True
+    return any(SequenceMatcher(None, word, "latest").ratio() >= 0.78 for word in words)
+
+
+def is_notice_question(question: str) -> bool:
+    words = tokens(question)
+    if any(word in {"notice", "notices", "announcement", "announcements", "circular", "circulars", "news"} for word in words):
+        return True
+    if not is_latest_request(question):
+        return False
+    return any(
+        SequenceMatcher(None, word, candidate).ratio() >= 0.65
+        for word in words
+        for candidate in ("notice", "notices")
+    )
 
 
 def understand_question(question: str) -> dict:
@@ -28,7 +53,15 @@ def understand_question(question: str) -> dict:
         if needle in lowered and all(name != existing[0] for existing in found):
             found.append((name, hosts))
     intent = "general"
-    if any(word in lowered for word in (" where ", " located", " address")):
+    asks_exam = any(word in lowered for word in (" exam", "examination", " final "))
+    asks_schedule = any(word in lowered for word in ("timetable", "time table", "schedule", "dates"))
+    if asks_exam and asks_schedule:
+        intent = "exam_schedule"
+    elif "attendance" in lowered or "attend" in lowered:
+        intent = "attendance_policy"
+    elif is_notice_question(question):
+        intent = "notices"
+    elif any(word in lowered for word in (" where ", " located", " address")):
         intent = "location"
     elif any(word in lowered for word in ("course", "programme", "program", "syllabus", "offered")):
         intent = "courses"
@@ -92,7 +125,7 @@ def host_location_evidence(db, understood: dict) -> list[dict]:
 
 def focus_department_sources(question: str, sources: list[dict], understood: dict) -> tuple[list[dict], str]:
     hosts = understood["hosts"]
-    if not hosts or understood["intent"] not in {"location", "courses", "faculty", "services"}:
+    if not hosts:
         return sources, "University-wide indexed pages were kept."
     names = [name.lower() for name in understood["departments"]]
     matched = []
@@ -101,11 +134,28 @@ def focus_department_sources(question: str, sources: list[dict], understood: dic
         label = f"{source.get('department') or ''} {source.get('document_title') or ''}".lower()
         if any(host in url for host in hosts) or any(name in label for name in names):
             matched.append(source)
+    if understood["intent"] == "attendance_policy":
+        university_policies = [
+            source
+            for source in sources
+            if "dauniv.ac.in" in (source.get("source_url") or "").lower()
+            and any(
+                marker in (source.get("document_title") or "").lower()
+                for marker in ("ordinance", "regulation", "attendance policy")
+            )
+            and "attendance" in (source.get("excerpt") or "").lower()
+        ]
+        matched.extend(source for source in university_policies if source not in matched)
     if not matched:
-        return sources, (
+        note = (
             f"No retrieved passage came from {', '.join(understood['departments'])}. "
-            "University-wide evidence was kept instead of guessing."
+            "Other departments' pages were excluded."
         )
+        if understood["intent"] == "location":
+            return sources, note
+        return [], note
+    if understood["intent"] == "attendance_policy":
+        return matched, f"Included {', '.join(understood['departments'])} context and applicable university attendance rules."
     if understood["intent"] == "location":
         text = " ".join((source.get("excerpt") or "") for source in matched).lower()
         if not any(word in text for word in ("takshila", "nalanda", "khandwa", "indore", "address", "campus")):

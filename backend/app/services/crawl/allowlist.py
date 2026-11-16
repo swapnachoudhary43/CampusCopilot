@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 ALLOWED_HOST_SUFFIXES = ("dauniv.ac.in", "ietdavv.edu.in", "cdoedavv.ac.in", "iips.edu.in")
 
-# Homepages linked from www.dauniv.ac.in on 13 Nov 2026, plus pages supplied as official.
+# Public official pages supplied for DAVV, its schools, and its institutes.
 SEED_URLS = (
     "https://www.dauniv.ac.in/",
     "https://www.dauniv.ac.in/admission",
@@ -32,6 +32,7 @@ SEED_URLS = (
     "https://dsf.dauniv.ac.in/academics.php",
     "https://dsf.dauniv.ac.in/ds.php",
     "https://dsf.dauniv.ac.in/SDSF_News/news.php",
+    "https://dsf.dauniv.ac.in/SDSF_News/news.php?category=all",
     "https://iips.edu.in/",
     "https://iips.edu.in/about.php",
     "https://iips.edu.in/about_university.php",
@@ -45,6 +46,8 @@ SEED_URLS = (
     "https://iips.edu.in/scholarship.php",
     "https://iips.edu.in/event.php",
     "https://iips.edu.in/grievance.php",
+    "https://iips.edu.in/news_and_announcements.php",
+    "https://iips.edu.in/academic_calendar.php",
     "https://iips.edu.in/p_mtech-cs.php",
     "https://iips.edu.in/p_mca.php",
     "https://iips.edu.in/p_mtech.php",
@@ -75,7 +78,7 @@ SEED_URLS = (
 
 OFFICIAL_SITES = (
     {"name": "Devi Ahilya Vishwavidyalaya", "url": "https://www.dauniv.ac.in/", "category": "university", "parent": "DAVV"},
-    {"name": "University academic portal", "url": "https://edu.dauniv.ac.in/", "category": "portal", "parent": "DAVV"},
+    {"name": "School of Education", "url": "https://edu.dauniv.ac.in/", "category": "school", "parent": "DAVV"},
     {"name": "Central Library", "url": "https://lib.dauniv.ac.in/", "category": "library", "parent": "DAVV"},
     {"name": "School of Data Science and Forecasting", "url": "https://dsf.dauniv.ac.in/", "category": "school", "parent": "DAVV"},
     {"name": "International Institute of Professional Studies", "url": "https://iips.edu.in/", "category": "institute", "parent": "DAVV"},
@@ -124,5 +127,5 @@ def department_for(url: str) -> str:
     if host.startswith("cpc."):
         return "Centralised Placement Cell"
     if host.startswith("edu."):
-        return "University academic portal"
+        return "School of Education"
     return "Devi Ahilya Vishwavidyalaya"

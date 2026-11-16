@@ -16,7 +16,7 @@ import httpx
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.models.entities import CrawlRecord, Document, OfficialSite
+from app.models.entities import CrawlRecord, Document, DocumentChunk, OfficialSite
 from app.services.crawl.allowlist import OFFICIAL_SITES, SEED_URLS, department_for, host_allowed
 from app.services.crawl.extract import extract_html, looks_like_script_shell
 from app.services.crawl.robots import disallowed_prefixes, path_allowed
@@ -35,8 +35,9 @@ _PRIORITY = (
     "about", "department", "student", "calendar", "notice", "placement", "address", "school",
 )
 _USEFUL_PDF = (
-    "hostel", "library", "admission", "fee", "calendar", "sport", "laborator",
-    "contact", "warden", "ordinance", "prospectus", "brochure", "placement", "address",
+    "hostel", "library", "admission", "fee", "calendar", "syllabus", "timetable",
+    "time.table", "exam", "notice", "sport", "laborator", "contact", "warden",
+    "ordinance", "prospectus", "brochure", "placement", "address",
 )
 _state_lock = threading.Lock()
 _state = {"running": False, "started_at": None, "finished_at": None, "last_error": None, "indexed": 0, "failed": 0}
@@ -291,6 +292,13 @@ def _store_html(db: Session, response: httpx.Response, url: str, owner_id: int |
     if slug and slug.lower() not in (title or "").lower():
         title = f"{slug} — {title}".strip()
     if looks_like_script_shell(html, text):
+        existing = db.query(Document).filter(Document.source_url == url[:500]).one_or_none()
+        if existing is not None:
+            db.query(DocumentChunk).filter(DocumentChunk.document_id == existing.id).delete()
+            existing.status = "needs_render"
+            existing.status_message = "This page requires JavaScript or sign-in to expose its content."
+            existing.chunk_count = 0
+            db.commit()
         _record(
             db,
             url,

@@ -71,6 +71,8 @@ def extractive_notice(text: str) -> dict:
 def _gemini_notice(text: str) -> dict:
     prompt = (
         "Read the campus notice and return JSON only. Do not add facts that are not in the notice.\n"
+        "Write the summary, deadline descriptions, and action items in clear English only, even if the notice is in Hindi or Hinglish. "
+        "Translate the meaning into English; do not copy Hindi text or transliterate it.\n"
         "Keys: summary (string), deadlines (list of objects with date_text and description), "
         "audience (one of all, students, faculty, hostel), action_items (list of strings).\n\n"
         f"Notice:\n{text}"

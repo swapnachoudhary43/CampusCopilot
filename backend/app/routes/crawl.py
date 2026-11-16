@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/crawl", tags=["crawl"])
 
 class CrawlStart(BaseModel):
     max_pages: int = Field(default=70, ge=1, le=120)
-    max_pdfs: int = Field(default=6, ge=0, le=20)
+    max_pdfs: int = Field(default=20, ge=0, le=20)
 
 
 def _row(record: CrawlRecord) -> dict:
